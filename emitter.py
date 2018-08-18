@@ -1,40 +1,37 @@
-import pubsub, queue, numpy as np, yaml, time
+import config
+import pubsub, queue, numpy as np, yaml
 
-_PUBUB_TOPIC_ID = 'demo_topic_id'
-_PUBUB_SUBSCRIPTION_ID = 'demo_subscription_id'
 _USERS = {}
 
-def initialize(user_config_yaml_file_name = 'users.yaml'):
-	# users
-	with open(user_config_yaml_file_name, 'r') as fs:
-	    try:
-	        user_config = yaml.load(fs)
+def init():
+    # users
+    users = config.get_config()['users']
+    for user in users:
+        for user in users:
+            _USERS[user['user_id']] = user['user_info']
 
-	    except yaml.YAMLError as ex:
-	        print(ex)
-
-	# pubsub
-	pubsub.create_subscription(_PUBUB_TOPIC_ID, _PUBUB_SUBSCRIPTION_ID)
+    # pubsub
+    pubsub.create_subscription(config.get_config()['pubsub']['topic_id'], config.get_config()['pubsub']['subscription_id'])
 
 def _emit_spend(timestamp, user_id, spend):
-	pubsub.publish(_PUBUB_TOPIC_ID, timestamp, user_id, spend)
+    pubsub.publish(config.get_config()['pubsub']['topic_id'], timestamp=timestamp, user_id=user_id, spend=spend)
 
 def emit_spends(from_timestamp, to_timestamp):
-	t = 1
-	# the heap keeps the (<next event timestamp>, (user_id, spend))
-	pq = queue.PriorityQueue()
-	for u in _USERS:
-		# decide the next expenditure for each user
-		pq.put(np.random.exponential(u['scale']))
+    # the heap keeps the (<next event timestamp>, (user_id, spend))
+    pq = queue.PriorityQueue()
+    for u_id, u_info in _USERS.items():
+        # decide the next expenditure for each user
+        wait = int(np.random.exponential(u_info['scale']))
+        pq.put((from_timestamp + wait, (u_id, 100)))
 
-	while pq.qsize() > 0:
-		next_spent = pq.get()
-		if next_spent[0] > to_timestamp: break
-		# decide the next expenditure after emit a signal
-		_emit_spend(next_spent[0], *next_spent[1])
+    while pq.qsize() > 0:
+        next_spent = pq.get()
+        when = next_spent[0]
+        if when > to_timestamp: break
+        u_id, spend = next_spent[1][0], next_spent[1][1]
+        _emit_spend(when, u_id, spend)
+        # decide the next expenditure after emit a signal
+        wait = int(np.random.exponential(_USERS[u_id]['scale']))
+        pq.put((when + wait, (u_id, 100)))
 
-if __name__ == '__main__':
-	initialize()
-	to_timestamp = time.time()
-	from_timestamp = to_timestamp - 6 * 3600
-	emit_spends(from_timestamp, to_timestamp)
+

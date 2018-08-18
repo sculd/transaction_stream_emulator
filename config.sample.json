@@ -1,0 +1,25 @@
+{
+    "bigtable":{
+        "project_id":"",
+        "table_instance_id":"demo-ti"
+    },
+    "pubsub":{
+    	"topic_id":"demo_topic_id",
+    	"subscription_id":"demo_subscription_id"
+    },
+    "users":[
+        {
+            "user_id":"u1",
+            "user_info":{
+                "scale":1000
+            }
+        },
+        {
+            "user_id": "u2",
+            "user_info": {
+                "scale": 2000
+            }
+        }
+    ]
+}
+

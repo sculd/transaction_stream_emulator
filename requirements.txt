@@ -1,0 +1,5 @@
+numpy
+pyspark
+google-cloud-bigtable==0.29.0
+google-cloud-core==0.28.1
+pyyaml
