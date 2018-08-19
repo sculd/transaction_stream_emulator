@@ -3,7 +3,7 @@ import time
 
 def init():
     emitter.init()
-    database.init()
+    database.init_and_reset()
 
 if __name__ == '__main__':
     init()

@@ -10,6 +10,8 @@ The schema does not make particular use for the column key.
 '''
 
 from google.cloud import bigtable
+from google.cloud.bigtable import row_filters
+
 import config
 
 # I would hard-code these parameters
@@ -24,11 +26,15 @@ _table = None
 
 def init():
     global _table
-    # config.get_config()['bigtable']['project_id']
+    if _table is not None: return
     _client = bigtable.Client(project=config.get_config()['bigtable']['project_id'], admin=True)
     _table_instance = bigtable.instance.Instance(config.get_config()['bigtable']['table_instance_id'], _client)
     _table = bigtable.table.Table(_TABLE_ID, _table_instance)
-    # _table.exists() is not implemented so instead catch the exception
+
+def init_and_reset():
+    init()
+    global _table
+
     try:
         _table.create()
     except:
@@ -50,6 +56,12 @@ def init():
 def _get_row_key(user_id, timestamp):
     return '{}{}{}'.format(user_id, _ROW_KEY_DELIMETER, timestamp)
 
+def _prase_row_key(row_key):
+    rk = row_key.decode()
+    if _ROW_KEY_DELIMETER not in rk:
+        return None, None
+    return rk.split(_ROW_KEY_DELIMETER)
+
 def write_transaction(column_family_id, timestamp, user_id, spend):
     global _table
     if _table is None:
@@ -68,18 +80,38 @@ def read_transactions(column_family_id, user_id, from_timestamp, to_timestamp):
     if _table is None:
         init()
 
-    _table.read_rows(
-        start_key=_get_row_key(user_id, from_timestamp),
-        end_key=_get_row_key(user_id, to_timestamp),
-        filter=_table.row_filters.FamilyNameRegexFilter(column_family_id)
+    rs = _table.read_rows(
+        start_key=_get_row_key(user_id, from_timestamp).encode(),
+        end_key=_get_row_key(user_id, to_timestamp).encode(),
+        filter_=row_filters.FamilyNameRegexFilter(column_family_id)
     )
 
-def read_transaction_at(column_family_id, user_id, timestamp):
+    if rs is None:
+        return None
+
+    rs.consume_all()
+    res = []
+    for row_key, row_data in rs.rows.items():
+        cells = row_data.cells[column_family_id][_COLUMN_ID.encode()]
+        user_id, timestamp = _prase_row_key(row_key)
+        res += [(timestamp, cell.value.decode()) for cell in cells]
+    return res
+
+def read_transaction(column_family_id, user_id, timestamp):
     global _table
     if _table is None:
         init()
 
-    _table.read_row(
-        _get_row_key(user_id, timestamp),
-        filter=_table.row_filters.FamilyNameRegexFilter(column_family_id)
-    )
+    try:
+        r = _table.read_row(
+            _get_row_key(user_id, timestamp).encode(),
+            filter_=row_filters.FamilyNameRegexFilter(column_family_id)
+        )
+
+        if r is None:
+            return None
+
+        cells = r.cells[column_family_id][_COLUMN_ID.encode()]
+        return [(timestamp, cell.value.decode()) for cell in cells]
+    except Exception as e:
+        print(e)
