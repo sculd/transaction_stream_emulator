@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	    <!-- metadata -->
+	    <meta charset=utf-8 />
+	    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+	    <title>Demo</title>
+
+	    <!-- styles -->
+	    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+		<!-- jQuery -->
+		<script
+		src="https://code.jquery.com/jquery-3.3.1.min.js"
+		integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+		crossorigin="anonymous"></script>
+
+		<!-- Bootstrap css and js -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+		<!-- Load c3.css -->
+		<link href="static/css/c3.min.css" rel="stylesheet">
+
+		<!-- Load d3.js and c3.js -->
+		<!-- <script src="static/js/d3.min.js" charset="utf-8"></script> -->
+		<script src="https://d3js.org/d3.v5.min.js"></script>
+		<script src="static/js/c3.min.js"></script>
+
+		<!-- Date Time picker -->
+		<script src="static/js/moment-with-locales.min.js"></script>
+
+		<!-- underscore -->
+		<script src="static/js/underscore-min.js"></script>
+
+		<!-- angular -->
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular.min.js"></script>
+	</head>
+
+	<body ng-app="demo" ng-controller="ListCtrl">
+		<div class="container">
+			<div class="ml-auto mr-auto text-center">
+				<h1>Dashboard</h1>
+				<div class="form-group">
+					<label for="user_id">User ID</label>
+					<input class="form-control" id="user_id" value="u1" placeholder="user id">
+				</div>
+				<div class="form-group">
+					<div>Time format: -1h means one hour past from the current time.</div>
+					<label for="from">From</label>
+					<input class="form-control" id="from" value="-6h" placeholder="from (-1h means one hour past from the current time.)">
+					<label for="to">To</label>
+					<input class="form-control" id="to" value="0m" placeholder="to (-1h means one hour past from the current time.)">
+				</div>
+				<button ng-click='update_dashboard()' type="submit" id="dashboard_submit" class="btn btn-primary">Submit</button>
+			</div>
+
+			<div id="chart" style="display: block;"></div>
+
+			<!-- load chart js -->
+			<script src="static/js/chart.js"></script>
+
+			<div style="display: block;">
+				<table class="table">
+					<tr>
+						<th scope="col">User ID</th>
+						<th scope="col">Date</th>
+						<th scope="col">Spend</th>
+					</tr>
+					<tr ng-repeat="transaction in transactions">
+						<td>{[{ transaction.user_id }]}</td>
+						<td>{[{ transaction.date }]}</td>
+						<td>{[{ transaction.spend }]}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<script>
+			init_angular()
+			update_chart()
+		</script>
+
+	</body>
+</html>

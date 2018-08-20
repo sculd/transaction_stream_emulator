@@ -19,6 +19,7 @@ import config
 _TABLE_ID = 'dt'
 COLUMN_FAMILY_ID_LIST = 'dcflist'
 COLUMN_FAMILY_ID_BY_MINUTE = 'dcfbminute'
+COLUMN_FAMILY_ID_BY_HOUR = 'dcfbhour'
 COLUMN_FAMILY_ID_SUM = 'dcfsum'
 _COLUMN_ID = 'dc'
 _ROW_KEY_DELIMETER = '#'
@@ -41,7 +42,7 @@ def init_and_reset():
         pass
 
     # reset the table content on each run for the demo
-    for cf_name in [COLUMN_FAMILY_ID_LIST, COLUMN_FAMILY_ID_BY_MINUTE, COLUMN_FAMILY_ID_SUM]:
+    for cf_name in [COLUMN_FAMILY_ID_LIST, COLUMN_FAMILY_ID_BY_MINUTE, COLUMN_FAMILY_ID_BY_HOUR, COLUMN_FAMILY_ID_SUM]:
         cf = _table.column_family(cf_name)
         try:
             cf.delete()

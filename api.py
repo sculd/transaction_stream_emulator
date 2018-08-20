@@ -1,6 +1,6 @@
 import database
 import datetime
-from flask import Flask
+from flask import Flask, render_template
 from flask_restful import Resource, Api, reqparse
 from pytimeparse.timeparse import timeparse
 import iso8601
@@ -59,6 +59,21 @@ class Minute(Resource):
             t_from,
             t_to)
 
+class Hour(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('from', type=str)
+        parser.add_argument('to', type=str)
+        parser.add_argument('user_id', type=str)
+
+        args = parser.parse_args()
+        t_from, t_to = _parse_time(args['from']), _parse_time(args['to'])
+        return database.read_transactions(
+            database.COLUMN_FAMILY_ID_BY_HOUR,
+            args['user_id'],
+            t_from,
+            t_to)
+
 class Sum(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -71,6 +86,11 @@ class Sum(Resource):
             database.COLUMN_FAMILY_ID_SUM,
             args['user_id'],
             t_to)
+
+@_app.route('/ui')
+def render():
+    return render_template('index.html')
+
 
 _api.add_resource(List, '/list')
 _api.add_resource(Minute, '/minute')

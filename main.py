@@ -11,4 +11,3 @@ if __name__ == '__main__':
     from_timestamp = to_timestamp - 6 * 3600
     emitter.emit_spends(from_timestamp, to_timestamp)
     aggregator.process(from_timestamp, to_timestamp)
-    #database.read_transactions('u1', from_timestamp, to_timestamp)
