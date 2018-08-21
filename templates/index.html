@@ -42,7 +42,7 @@
 
 	<body ng-app="demo" ng-controller="ListCtrl">
 		<div class="container">
-			<div class="ml-auto mr-auto text-center">
+			<div class="ml-auto mr-auto text-center" style="margin-bottom:10px;">
 				<h1>Dashboard</h1>
 				<div class="form-group">
 					<label for="user_id">User ID</label>
@@ -58,6 +58,9 @@
 				<button ng-click='update_dashboard()' type="submit" id="dashboard_submit" class="btn btn-primary">Submit</button>
 			</div>
 
+			<div class="panel panel-default ml-auto mr-auto text-center">
+				<div id = "sum_result" class="panel-body">(The sum will be displayed here)</div>
+			</div>
 			<div id="chart" style="display: block;"></div>
 
 			<!-- load chart js -->
@@ -81,7 +84,6 @@
 
 		<script>
 			init_angular()
-			update_chart()
 		</script>
 
 	</body>

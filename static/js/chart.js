@@ -33,8 +33,8 @@ function chart_sequence(data) {
     });
 }
 
-function chart_by_minute(user_id, from, to) {
-    return $.get('http://localhost:5000/minute',
+function chart_by_hour(user_id, from, to) {
+    return $.get('http://localhost:5000/hour',
         { from: from, to: to, user_id: user_id },
         function( data ) {
                 chart_sequence(data)
@@ -42,41 +42,16 @@ function chart_by_minute(user_id, from, to) {
         )
 }
 
-function get_sync(url) {
-    var ret = null
-    var jqxhr = $.ajax({
-        type: "GET",
-        url: url,
-        dataType: 'json',
-        cache: false,
-        success: function(suc_res) {
-          ret = suc_res;
-        },
-        async: false
-    });
-
-    return ret;
-}
-
 function update_chart() {
     user_id = $('#user_id').val()
     from = $('#from').val()
     to = $('#to').val()
-    chart_by_minute(user_id, from, to)
-}
-
-function list_transactions(user_id, from, to) {
-    return $.get('http://localhost:5000/list',
-        { from: from, to: to, user_id: user_id },
-        function( data ) {
-                return console.log(data)
-            }
-        )
+    chart_by_hour(user_id, from, to)
 }
 
 function _formatDate(date) {
-    return date.getFullYear() + "-" + _pad_digit(date.getMonth()) + "-" +
-    _pad_digit(date.getDay()) + "T" + _pad_digit(date.getHours()) + ":" +
+    return date.getFullYear() + "-" + _pad_digit(date.getMonth() + 1) + "-" +
+    _pad_digit(date.getDate()) + "T" + _pad_digit(date.getHours()) + ":" +
     _pad_digit(date.getMinutes()) + ":" + _pad_digit(date.getSeconds())
 }
 
@@ -88,7 +63,6 @@ function init_angular() {
     app.controller('ListCtrl', function($scope) {
         $scope.update_dashboard = function() {
             update_chart()
-
 
             user_id = $('#user_id').val()
             from = $('#from').val()
@@ -102,6 +76,19 @@ function init_angular() {
                                 t = new Date(parseInt(pair[0]) * 1000)
                                 return { user_id: user_id, date: _formatDate(t), spend: pair[1]} })
                             console.log('updated the transactions table.')
+                        })
+                    }
+                )
+
+            $.get('http://localhost:5000/sum',
+                { from: from, to: to, user_id: user_id },
+                function( data ) {
+                        $scope.$apply(function() {
+                            $('#sum_result').text(
+                                'The sum of spend for user ' + user_id +
+                                ' from ' + _formatDate(new Date(parseInt(data[0]) * 1000)) +
+                                ' to ' + _formatDate(new Date(parseInt(data[1]) * 1000)) +
+                                ' is ' + data[2].toFixed(2))
                         })
                     }
                 )

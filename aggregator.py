@@ -60,25 +60,16 @@ def _aggregate(from_timestamp, to_timestamp):
         .withColumnRenamed('sum(spend)', 'spend')\
         .collect()
 
-    # aggregate by minute to show the timeline of the spending per minute.
-    df_truncate_by_minute = df.withColumn('timestamp', (df.timestamp / 60).cast('int') * 60)
-    sum_by_minute_by_user_id = df_truncate_by_minute \
-        .groupby(df_truncate_by_minute.user_id, df_truncate_by_minute.timestamp)\
-        .agg({"spend": "sum"})\
-        .withColumnRenamed('sum(spend)', 'spend')\
-        .collect()
-
     # for the sum over the time range, add the timestamp @ the end boundary of the time range.
     # the sum is aggregated over the per-minute calculation, thus to avoid doing the minute level
     # aggregation again, would boost the speed when the volume is high.
-    sum_by_user_id =  df_truncate_by_minute.groupby(df_truncate_by_minute.user_id)\
+    sum_by_user_id =  df_truncate_by_hour.groupby(df_truncate_by_hour.user_id)\
         .agg({"spend": "sum"})\
         .withColumnRenamed('sum(spend)', 'spend') \
         .withColumn("timestamp", lit(to_timestamp))\
         .collect()
 
     write_rows_to_database(database.COLUMN_FAMILY_ID_LIST, df.collect())
-    write_rows_to_database(database.COLUMN_FAMILY_ID_BY_MINUTE, sum_by_minute_by_user_id)
     write_rows_to_database(database.COLUMN_FAMILY_ID_BY_HOUR, sum_by_hour_by_user_id)
     write_rows_to_database(database.COLUMN_FAMILY_ID_SUM, sum_by_user_id)
 

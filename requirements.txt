@@ -7,3 +7,4 @@ flask
 flask-restful
 pytimeparse
 iso8601
+jupyter

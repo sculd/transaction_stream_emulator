@@ -1,4 +1,4 @@
-import emitter, pubsub, aggregator, database
+from simulation import emitter, pubsub, aggregator, database
 import time
 
 def init():

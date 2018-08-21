@@ -1,5 +1,6 @@
 import config
-import pubsub, queue, numpy as np, yaml
+import emitter, pubsub, aggregator, database
+import queue, numpy as np, yaml
 
 _USERS = {}
 

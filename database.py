@@ -11,7 +11,7 @@ The schema does not make particular use for the column key.
 
 from google.cloud import bigtable
 from google.cloud.bigtable import row_filters
-
+import functools, operator
 import config
 
 # I would hard-code these parameters
@@ -116,3 +116,7 @@ def read_transaction(column_family_id, user_id, timestamp):
         return [(timestamp, cell.value.decode()) for cell in cells]
     except Exception as e:
         print(e)
+
+def sum_transactions(column_family_id, user_id, from_timestamp, to_timestamp):
+    transactions = read_transactions(column_family_id, user_id, from_timestamp, to_timestamp)
+    return [from_timestamp, to_timestamp, functools.reduce(operator.add, map(lambda x: float(x[1]), transactions))]

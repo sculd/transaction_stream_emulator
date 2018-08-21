@@ -44,21 +44,6 @@ class List(Resource):
             t_from,
             t_to)
 
-class Minute(Resource):
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('from', type=str)
-        parser.add_argument('to', type=str)
-        parser.add_argument('user_id', type=str)
-
-        args = parser.parse_args()
-        t_from, t_to = _parse_time(args['from']), _parse_time(args['to'])
-        return database.read_transactions(
-            database.COLUMN_FAMILY_ID_BY_MINUTE,
-            args['user_id'],
-            t_from,
-            t_to)
-
 class Hour(Resource):
     def get(self):
         parser = reqparse.RequestParser()
@@ -77,23 +62,26 @@ class Hour(Resource):
 class Sum(Resource):
     def get(self):
         parser = reqparse.RequestParser()
+        parser.add_argument('from', type=str)
         parser.add_argument('to', type=str)
         parser.add_argument('user_id', type=str)
 
         args = parser.parse_args()
-        t_to = _parse_time(args['to'])
-        return database.read_transaction(
-            database.COLUMN_FAMILY_ID_SUM,
+        t_from, t_to = _parse_time(args['from']), _parse_time(args['to'])
+        return database.sum_transactions(
+            database.COLUMN_FAMILY_ID_BY_HOUR,
             args['user_id'],
+            t_from,
             t_to)
 
 @_app.route('/ui')
+@_app.route('/')
 def render():
     return render_template('index.html')
 
 
 _api.add_resource(List, '/list')
-_api.add_resource(Minute, '/minute')
+_api.add_resource(Hour, '/hour')
 _api.add_resource(Sum, '/sum')
 
 if __name__ == '__main__':
