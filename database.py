@@ -16,9 +16,8 @@ import config
 
 # I would hard-code these parameters
 # in production these would be part of the config as well.
-_TABLE_ID = 'dt'
+_TABLE_ID = 'demo-table'
 COLUMN_FAMILY_ID_LIST = 'dcflist'
-COLUMN_FAMILY_ID_BY_MINUTE = 'dcfbminute'
 COLUMN_FAMILY_ID_BY_HOUR = 'dcfbhour'
 COLUMN_FAMILY_ID_SUM = 'dcfsum'
 _COLUMN_ID = 'dc'
@@ -42,7 +41,7 @@ def init_and_reset():
         pass
 
     # reset the table content on each run for the demo
-    for cf_name in [COLUMN_FAMILY_ID_LIST, COLUMN_FAMILY_ID_BY_MINUTE, COLUMN_FAMILY_ID_BY_HOUR, COLUMN_FAMILY_ID_SUM]:
+    for cf_name in [COLUMN_FAMILY_ID_LIST, COLUMN_FAMILY_ID_BY_HOUR, COLUMN_FAMILY_ID_SUM]:
         cf = _table.column_family(cf_name)
         try:
             cf.delete()
