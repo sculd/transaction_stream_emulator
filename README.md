@@ -1,4 +1,7 @@
 # How to run
+
+![ui](https://preview.ibb.co/j2cYqz/Screen_Shot_2018_08_21_at_8_18_45_PM.png)
+
 ## requirements
 + python (python3 was tested, python2 probably should work but not tested)
 + Google Cloud Platform account
